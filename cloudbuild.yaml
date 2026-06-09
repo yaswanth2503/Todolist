@@ -16,20 +16,23 @@ steps:
       --image-family=cos-stable \
       --image-project=cos-cloud \
       --boot-disk-size=10GB \
-      --metadata=startup-script="#!/bin/bash
+      --metadata=startup-script='#!/bin/bash
       docker-credential-gcr configure-docker --registries=us-central1-docker.pkg.dev
-      docker run -d -p 8080:8080 us-central1-docker.pkg.dev/handson-493511/todo-repo/todo-app:$BUILD_ID"
+      docker rm -f todo-app || true
+      docker run -d -p 8080:8080 --name todo-app us-central1-docker.pkg.dev/handson-493511/todo-repo/todo-app:$BUILD_ID'
 
 - name: 'gcr.io/cloud-builders/gcloud'
   args:
-  - 'compute'
-  - 'instance-groups'
-  - 'managed'
-  - 'rolling-action'
-  - 'start-update'
-  - 'todo-app-mig'
-  - '--version=template=todo-app-template-$BUILD_ID'
-  - '--zone=us-central1-a'
+  - compute
+  - instance-groups
+  - managed
+  - rolling-action
+  - replace
+  - todo-app-mig
+  - --version=template=todo-app-template-$BUILD_ID
+  - --zone=us-central1-a
+  - --max-surge=1
+  - --max-unavailable=0
 
 images:
 - 'us-central1-docker.pkg.dev/handson-493511/todo-repo/todo-app:$BUILD_ID'
