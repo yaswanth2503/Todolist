@@ -13,3 +13,5 @@ steps:
 
 images:
 - 'us-central1-docker.pkg.dev/handson-493511/todo-repo/todo-app:$BUILD_ID'
+options:
+  logging: CLOUD_LOGGING_ONLY
