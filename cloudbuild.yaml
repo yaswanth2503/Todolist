@@ -1,0 +1,15 @@
+steps:
+# Step 1: Build Docker image
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'us-central1-docker.pkg.dev/handson-493511/todo-repo/todo-app:$BUILD_ID', '.']
+
+# Step 2: Push image to Artifact Registry
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'us-central1-docker.pkg.dev/handson-493511/todo-repo/todo-app:$BUILD_ID']
+
+# Step 3: Deploy to App Engine
+- name: 'gcr.io/cloud-builders/gcloud'
+  args: ['app', 'deploy', 'app.yaml', '--image-url=us-central1-docker.pkg.dev/handson-493511/todo-repo/todo-app:$BUILD_ID', '--quiet']
+
+images:
+- 'us-central1-docker.pkg.dev/handson-493511/todo-repo/todo-app:$BUILD_ID'
