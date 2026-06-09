@@ -2,7 +2,7 @@
 FROM nginx:alpine
 
 # Copy your single HTML file into Nginx's default directory
-COPY todo.html /usr/share/nginx/html/index.html
+COPY index.html /usr/share/nginx/html/index.html
 
 # Expose port 8080 (App Engine flexible expects 8080)
 EXPOSE 8080

@@ -1,7 +1,6 @@
 runtime: custom
 env: flex
 
-# App Engine flexible requires a Dockerfile in the root
 service: todo-app
 instance_class: F1
 automatic_scaling:
