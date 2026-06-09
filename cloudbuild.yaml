@@ -1,15 +1,35 @@
 steps:
-# Step 1: Build Docker image
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', 'us-central1-docker.pkg.dev/handson-493511/todo-repo/todo-app:$BUILD_ID', '.']
 
-# Step 2: Push image to Artifact Registry
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'us-central1-docker.pkg.dev/handson-493511/todo-repo/todo-app:$BUILD_ID']
 
-# Step 3: Deploy to App Engine
 - name: 'gcr.io/cloud-builders/gcloud'
-  args: ['app', 'deploy', 'app.yaml', '--image-url=us-central1-docker.pkg.dev/handson-493511/todo-repo/todo-app:$BUILD_ID', '--quiet']
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    gcloud compute instance-templates create todo-app-template-$BUILD_ID \
+      --machine-type=e2-micro \
+      --tags=todo-app-node \
+      --image-family=cos-stable \
+      --image-project=cos-cloud \
+      --boot-disk-size=10GB \
+      --metadata=startup-script="#!/bin/bash
+      docker-credential-gcr configure-docker --registries=us-central1-docker.pkg.dev
+      docker run -d -p 8080:8080 us-central1-docker.pkg.dev/handson-493511/todo-repo/todo-app:$BUILD_ID"
+
+- name: 'gcr.io/cloud-builders/gcloud'
+  args:
+  - 'compute'
+  - 'instance-groups'
+  - 'managed'
+  - 'rolling-action'
+  - 'start-update'
+  - 'todo-app-mig'
+  - '--version=template=todo-app-template-$BUILD_ID'
+  - '--zone=us-central1-a'
 
 images:
 - 'us-central1-docker.pkg.dev/handson-493511/todo-repo/todo-app:$BUILD_ID'
