@@ -29,7 +29,7 @@ steps:
   - rolling-action
   - replace
   - todo-app-mig
-  - --version=template=todo-app-template-$BUILD_ID
+  - "--version=template=todo-app-template-$BUILD_ID"
   - --zone=us-central1-a
   - --max-surge=1
   - --max-unavailable=0
